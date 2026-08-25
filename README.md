@@ -442,15 +442,9 @@ env.close()
 
 ## Output
 
-Initial Q-table:
-
-
-<img width="701" height="402" alt="image" src="https://github.com/user-attachments/assets/a1498469-8e79-4071-ab1d-453cf12ec3e1" />
-
-
 Final Q-table:
 
-<img width="481" height="347" alt="image" src="https://github.com/user-attachments/assets/1563f282-73fe-4cbc-9f96-900971c760e6" />
+<img width="302" height="377" alt="image" src="https://github.com/user-attachments/assets/20d74da1-62d0-4b8f-98dc-7c7e72e7520d" />
 
 
 
@@ -459,7 +453,8 @@ Final Q-table:
 
 Estimated State-Value Function:
 
-<img width="476" height="123" alt="image" src="https://github.com/user-attachments/assets/05b83d55-8f59-4da5-9f21-69e31f99619a" />
+<img width="367" height="120" alt="image" src="https://github.com/user-attachments/assets/f796b1d1-5b42-43e0-92bc-147a36dea2b0" />
+
 
 
 
@@ -468,15 +463,16 @@ Estimated State-Value Function:
 
 Learned Policy:
 
-<img width="467" height="121" alt="image" src="https://github.com/user-attachments/assets/9888293a-2ce2-4d59-8ed9-8288b39e7b15" />
-
+<img width="242" height="120" alt="image" src="https://github.com/user-attachments/assets/d4f60526-6963-48ed-9917-9e39cbf0455a" />
 
 
 
 
 Average reward over last 1000 episodes: 
 
-<img width="482" height="37" alt="image" src="https://github.com/user-attachments/assets/b9db46c7-64db-48a6-9ba8-122c579104a9" />
+<img width="497" height="80" alt="image" src="https://github.com/user-attachments/assets/65bfe216-194c-46fb-a0ce-1cadcf5f59cf" />
+
+
 
 Plot Learning Curve
 
