@@ -117,23 +117,37 @@ $$
 import gymnasium as gym
 import numpy as np
 import matplotlib.pyplot as plt
-```
-```python
+
 
 # -------------------------------------------------
-# Create FrozenLake Environment
+# Create Custom FrozenLake Environment
 # -------------------------------------------------
+
+custom_map = [
+    "SFFF",
+    "FHFH",
+    "FFHF",
+    "HFFG"
+]
 
 env = gym.make(
     "FrozenLake-v1",
-    map_name="4x4",
+    desc=custom_map,
     is_slippery=True
 )
 
 n_states = env.observation_space.n
 n_actions = env.action_space.n
-```
-```python
+
+print("Custom FrozenLake Map:")
+
+for row in custom_map:
+    print(row)
+
+print("\nNumber of States:", n_states)
+print("Number of Actions:", n_actions)
+
+
 # -------------------------------------------------
 # Hyperparameters
 # -------------------------------------------------
@@ -146,8 +160,9 @@ gamma = 0.99         # Discount factor
 
 epsilon = 1.0        # Initial exploration rate
 epsilon_min = 0.05
-```
-```python
+epsilon_decay = 0.9995
+
+
 # -------------------------------------------------
 # Initialize Q-table
 # -------------------------------------------------
@@ -160,7 +175,7 @@ Q = np.full(
     dtype=float
 )
 
-print("Initial Q-table:")
+print("\nInitial Q-table:")
 print(Q)
 
 print("\nInitial State-Value Function:")
@@ -176,12 +191,21 @@ def epsilon_greedy_action(state, epsilon):
     Selects an action using epsilon-greedy strategy.
     """
 
+    # Exploration
     if np.random.random() < epsilon:
         return env.action_space.sample()
-    else:
-        return np.argmax(Q[state])
-```
-```python
+
+    # Exploitation
+    max_q = np.max(Q[state])
+
+    # Select randomly among equally good actions
+    best_actions = np.flatnonzero(
+        Q[state] == max_q
+    )
+
+    return np.random.choice(best_actions)
+
+
 # -------------------------------------------------
 # SARSA Training
 # -------------------------------------------------
@@ -190,10 +214,14 @@ episode_rewards = []
 
 for episode in range(num_episodes):
 
+    # Reset environment
     state, info = env.reset()
 
     # Select initial action
-    action = epsilon_greedy_action(state, epsilon)
+    action = epsilon_greedy_action(
+        state,
+        epsilon
+    )
 
     total_reward = 0
 
@@ -204,54 +232,105 @@ for episode in range(num_episodes):
 
         total_reward += reward
 
+        # -------------------------------------------------
+        # Terminal State
+        # -------------------------------------------------
+
         if terminated or truncated:
 
-            # Terminal state update
-            td_target = reward
-            td_error = td_target - Q[state, action]
+            # For terminal states:
+            # Q(s,a) <- Q(s,a) + alpha[R - Q(s,a)]
 
-            Q[state, action] += alpha * td_error
+            td_target = reward
+
+            td_error = (
+                td_target
+                - Q[state, action]
+            )
+
+            Q[state, action] += (
+                alpha * td_error
+            )
 
             break
 
-        # Select next action using epsilon-greedy
-        next_action = epsilon_greedy_action(next_state, epsilon)
+        # -------------------------------------------------
+        # Select Next Action
+        # -------------------------------------------------
 
-        # SARSA update
-        td_target = reward + gamma * Q[next_state, next_action]
-        td_error = td_target - Q[state, action]
+        next_action = epsilon_greedy_action(
+            next_state,
+            epsilon
+        )
 
-        Q[state, action] += alpha * td_error
+        # -------------------------------------------------
+        # SARSA Update
+        # -------------------------------------------------
+
+        td_target = (
+            reward
+            + gamma * Q[next_state, next_action]
+        )
+
+        td_error = (
+            td_target
+            - Q[state, action]
+        )
+
+        Q[state, action] += (
+            alpha * td_error
+        )
 
         # Move to next state and action
         state = next_state
         action = next_action
 
+    # Store episode reward
     episode_rewards.append(total_reward)
 
-    # Decay epsilon
-    epsilon = max(epsilon_min, epsilon * epsilon_decay)
+    # -------------------------------------------------
+    # Variable Epsilon Decay
+    # -------------------------------------------------
+
+    epsilon = max(
+        epsilon_min,
+        epsilon * epsilon_decay
+    )
 
 
 # -------------------------------------------------
 # Extract State Values and Learned Policy
 # -------------------------------------------------
 
-state_values = np.max(Q, axis=1)
-learned_policy = np.argmax(Q, axis=1)
-```
-```python
+state_values = np.max(
+    Q,
+    axis=1
+)
+
+learned_policy = np.argmax(
+    Q,
+    axis=1
+)
+
 
 # -------------------------------------------------
 # Display Functions
 # -------------------------------------------------
 
 def print_value_function(values):
+
     print("\nEstimated State-Value Function:")
-    print(np.round(values.reshape(4, 4), 3))
+
+    print(
+        np.round(
+            values.reshape(4, 4),
+            3
+        )
+    )
 
 
 def print_policy(policy):
+
     action_symbols = {
         0: "L",
         1: "D",
@@ -260,33 +339,63 @@ def print_policy(policy):
     }
 
     policy_grid = np.array(
-        [action_symbols[action] for action in policy]
+        [
+            action_symbols[action]
+            for action in policy
+        ]
     ).reshape(4, 4)
 
     print("\nLearned Policy:")
+
     print(policy_grid)
-```
-```python
+
+
 # -------------------------------------------------
 # Output
 # -------------------------------------------------
 
 print("\nFinal Q-table:")
-print(np.round(Q, 3))
 
-print_value_function(state_values)
-print_policy(learned_policy)
+print(
+    np.round(
+        Q,
+        3
+    )
+)
 
-average_reward = np.mean(episode_rewards[-1000:])
-print("\nAverage reward over last 1000 episodes:", average_reward)
-```
-```python
+print_value_function(
+    state_values
+)
+
+print_policy(
+    learned_policy
+)
+
 
 # -------------------------------------------------
-# Plot Learning Curve
+# Average Reward
 # -------------------------------------------------
 
-window = 500
+average_reward = np.mean(
+    episode_rewards[-1000:]
+)
+
+print(
+    "\nAverage reward over last 1000 episodes:",
+    round(average_reward, 4)
+)
+
+print(
+    "Final Epsilon:",
+    round(epsilon, 4)
+)
+
+
+# -------------------------------------------------
+# Plot SARSA Learning Curve
+# -------------------------------------------------
+
+window = 100
 
 moving_average = np.convolve(
     episode_rewards,
@@ -294,13 +403,37 @@ moving_average = np.convolve(
     mode="valid"
 )
 
-plt.figure(figsize=(8, 5))
-plt.plot(moving_average)
-plt.xlabel("Episode")
-plt.ylabel("Average Reward")
-plt.title("SARSA Learning Curve - FrozenLake")
-plt.grid(True)
+plt.figure(
+    figsize=(8, 5)
+)
+
+plt.plot(
+    moving_average,
+    linewidth=2
+)
+
+plt.xlabel(
+    "Episode"
+)
+
+plt.ylabel(
+    "Average Reward"
+)
+
+plt.title(
+    "SARSA Learning Curve - Custom FrozenLake"
+)
+
+plt.grid(
+    True
+)
+
 plt.show()
+
+
+# -------------------------------------------------
+# Close Environment
+# -------------------------------------------------
 
 env.close()
 ```
