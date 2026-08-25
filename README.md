@@ -481,7 +481,8 @@ Average reward over last 1000 episodes:
 Plot Learning Curve
 
 
-<img width="961" height="553" alt="image" src="https://github.com/user-attachments/assets/954a6b7f-335a-42ad-a88e-294b0a173810" />
+<img width="691" height="470" alt="image" src="https://github.com/user-attachments/assets/97a623d6-cb86-4f42-ad71-f7c25eebf889" />
+
 
 
 
